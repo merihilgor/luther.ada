@@ -280,27 +280,36 @@ document.addEventListener('DOMContentLoaded', function () {
     const audio = document.getElementById('startup-audio');
 
     if (audio) {
-        audio.volume = 0.5;
+        // NOTE: Autoplay policies require starting muted.
+        // We will unmute on the first user interaction.
 
-        // Try to play immediately
+        const unmuteAndPlay = function () {
+            audio.muted = false;
+            audio.volume = 0.5;
+            audio.play().catch(e => console.log("Audio play failed on interaction:", e));
+
+            // Remove listeners once activated
+            document.removeEventListener('click', unmuteAndPlay);
+            document.removeEventListener('touchstart', unmuteAndPlay);
+            document.removeEventListener('keydown', unmuteAndPlay);
+        };
+
+        // Try to play immediately (muted)
         const playPromise = audio.play();
 
         if (playPromise !== undefined) {
             playPromise.then(_ => {
-                console.log("Audio autoplay started successfully");
+                console.log("Muted autoplay started. Waiting for interaction to unmute.");
+                // Add listeners to unmute
+                document.addEventListener('click', unmuteAndPlay);
+                document.addEventListener('touchstart', unmuteAndPlay);
+                document.addEventListener('keydown', unmuteAndPlay);
             }).catch(error => {
-                console.log("Audio autoplay prevented by browser policy");
-
-                const playOnInteraction = function () {
-                    audio.play();
-                    document.removeEventListener('click', playOnInteraction);
-                    document.removeEventListener('touchstart', playOnInteraction);
-                    document.removeEventListener('keydown', playOnInteraction);
-                };
-
-                document.addEventListener('click', playOnInteraction);
-                document.addEventListener('touchstart', playOnInteraction);
-                document.addEventListener('keydown', playOnInteraction);
+                console.log("Autoplay prevented entirely. Waiting for interaction.");
+                // Add listeners to play from scratch
+                document.addEventListener('click', unmuteAndPlay);
+                document.addEventListener('touchstart', unmuteAndPlay);
+                document.addEventListener('keydown', unmuteAndPlay);
             });
         }
     }
