@@ -1,0 +1,7 @@
+User-Agent: *
+Disallow: /znvygb
+Disallow: /_error-msg.php
+Disallow: /_search.html
+Disallow: /_checkout.html
+Disallow: /_message.html
+Sitemap: http://www.ibrahimada.com/sitemap.xml
