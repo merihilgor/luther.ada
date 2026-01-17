@@ -274,6 +274,37 @@ document.addEventListener('DOMContentLoaded', function () {
     console.log('%c🎵 İbrahim Ada Ud Atölyesi', 'font-size: 20px; font-weight: bold; color: #c9a86c;');
     console.log('%cGeleneksel el sanatının modern yorumu', 'font-size: 12px; color: #a0a0a0;');
 
+    // ===================================
+    // AUDIO AUTOPLAY HANDLING
+    // ===================================
+    const audio = document.getElementById('startup-audio');
+
+    if (audio) {
+        audio.volume = 0.5;
+
+        // Try to play immediately
+        const playPromise = audio.play();
+
+        if (playPromise !== undefined) {
+            playPromise.then(_ => {
+                console.log("Audio autoplay started successfully");
+            }).catch(error => {
+                console.log("Audio autoplay prevented by browser policy");
+
+                const playOnInteraction = function () {
+                    audio.play();
+                    document.removeEventListener('click', playOnInteraction);
+                    document.removeEventListener('touchstart', playOnInteraction);
+                    document.removeEventListener('keydown', playOnInteraction);
+                };
+
+                document.addEventListener('click', playOnInteraction);
+                document.addEventListener('touchstart', playOnInteraction);
+                document.addEventListener('keydown', playOnInteraction);
+            });
+        }
+    }
+
 });
 
 // ===================================
